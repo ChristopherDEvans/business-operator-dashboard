@@ -42,12 +42,16 @@ async function runSafetyChecks() {
   const isRailway = !!process.env.RAILWAY_ENVIRONMENT || !!process.env.RAILWAY_STATIC_URL;
   if (isRailway) {
     console.log("✓ Production environment (Railway) detected.");
-    const requiredProd = ["TELEGRAM_BOT_TOKEN", "OPENROUTER_API_KEY", "ALLOWED_USER_IDS", "SUPABASE_URL", "SUPABASE_KEY"];
+    const requiredProd = ["TELEGRAM_BOT_TOKEN", "OPENROUTER_API_KEY", "ALLOWED_USER_IDS", "SUPABASE_URL"];
     for (const key of requiredProd) {
       if (!process.env[key]) {
         console.error(`❌ Missing required production env var on Railway: ${key}`);
         process.exit(1);
       }
+    }
+    if (!config.supabaseKey) {
+      console.error(`❌ Missing required production env var on Railway: SUPABASE_KEY or SUPABASE_ANON_KEY`);
+      process.exit(1);
     }
   }
 
