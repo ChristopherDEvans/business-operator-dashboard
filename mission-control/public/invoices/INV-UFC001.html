@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #050505; color: #FFFFFF; margin: 0; padding: 40px; }
+    .invoice-box { max-width: 850px; margin: auto; padding: 50px; border: 1px solid #FFFFFF1A; background: #0A0A0A; border-radius: 2rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden; }
+    
+    /* Nebula Glow Effects */
+    .invoice-box::before { content: ""; position: absolute; top: -10%; right: -10%; width: 40%; height: 40%; background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%); z-index: 0; }
+    .invoice-box::after { content: ""; position: absolute; bottom: -10%; left: -10%; width: 40%; height: 40%; background: radial-gradient(circle, rgba(108, 99, 255, 0.1) 0%, transparent 70%); z-index: 0; }
+
+    .header { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px; }
+    .logo-section { display: flex; align-items: center; gap: 20px; }
+    .logo-img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; border: 1px solid #FFFFFF1A; }
+    .brand-name { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(135deg, #00D4FF, #6C63FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    .founder-profile { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; }
+    .founder-img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #00D4FF; object-fit: cover; }
+    .founder-info { line-height: 1.4; }
+    .founder-name { font-weight: 600; color: #FFFFFF; font-size: 16px; }
+    .founder-email { color: #8892B0; font-size: 14px; }
+
+    .title { font-size: 64px; font-weight: 700; color: #FFFFFF; opacity: 0.03; position: absolute; top: 20px; right: 40px; pointer-events: none; }
+    
+    .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-bottom: 50px; position: relative; z-index: 1; }
+    .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.2rem; color: #8892B0; margin-bottom: 12px; }
+    .value { font-size: 18px; color: #FFFFFF; font-weight: 500; }
+    .bill-to-card { padding: 24px; border: 1px solid #FFFFFF1A; border-radius: 1.5rem; background: rgba(255, 255, 255, 0.02); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; position: relative; z-index: 1; }
+    th { text-align: left; padding: 20px 15px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15rem; color: #8892B0; border-bottom: 1px solid #FFFFFF1A; }
+    td { padding: 24px 15px; font-size: 15px; color: #FFFFFF; border-bottom: 1px solid #FFFFFF0D; }
+    
+    .total-section { margin-top: 50px; display: flex; justify-content: flex-end; position: relative; z-index: 1; }
+    .total-pill { background: linear-gradient(135deg, #00D4FF, #6C63FF); padding: 20px 40px; border-radius: 9999px; text-align: right; box-shadow: 0 10px 30px -10px rgba(0, 212, 255, 0.3); }
+    .total-label { font-size: 12px; color: rgba(255, 255, 255, 0.8); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+    .total-amount { font-size: 36px; font-weight: 700; color: #FFFFFF; }
+
+    .notes-box { margin-top: 60px; padding: 24px; border: 1px solid #FFFFFF1A; border-radius: 1.5rem; background: rgba(0, 212, 255, 0.03); color: #8892B0; font-size: 14px; line-height: 1.6; }
+    .notes-title { color: #00D4FF; font-weight: 600; margin-bottom: 10px; display: block; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; }
+
+    .footer { margin-top: 100px; padding-top: 30px; border-top: 1px solid #FFFFFF1A; text-align: center; font-size: 12px; color: #8892B0; letter-spacing: 0.5px; }
+    .footer strong { color: #00D4FF; }
+  </style>
+</head>
+<body>
+  <div class="invoice-box">
+    <div class="title">INVOICE</div>
+    
+    <div class="header">
+      <div class="logo-section">
+        <img src="/branding/logo.png" class="logo-img" alt="Logo">
+        <div class="brand-name">EvansAiSolutions</div>
+      </div>
+      <div style="text-align: right;">
+        <div class="label">Invoice Number</div>
+        <div class="value" style="font-weight: 700; color: #00D4FF;">INV-UFC001</div>
+      </div>
+    </div>
+
+    <div class="founder-profile">
+      <img src="/branding/founder-photo.jpg" class="founder-img" alt="Chris Evans">
+      <div class="founder-info">
+        <div class="founder-name">Chris Evans</div>
+        <div class="founder-email">chris@evansaisolutions.com</div>
+      </div>
+    </div>
+
+    <div class="details-grid">
+      <div class="bill-to-card">
+        <div class="label">Bill To</div>
+        <div class="value" style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Ultimate Fighting Championship (UFC)</div>
+        <div style="color: #8892B0; font-size: 14px; line-height: 1.5;">Address research in progress...</div>
+      </div>
+      <div style="padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: flex-end;">
+        <div class="label">Date Issued</div>
+        <div class="value">25/03/2026</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th style="text-align: center;">Qty</th>
+          <th style="text-align: right;">Rate</th>
+          <th style="text-align: right;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+          <tr>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b;">Fight Fee</td>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b; text-align: center;">1</td>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b; text-align: right;">$45000.00</td>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b; text-align: right;">$45000.00</td>
+          </tr>
+        
+          <tr>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b;">Knockout of the Night Bonus</td>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b; text-align: center;">1</td>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b; text-align: right;">$10000.00</td>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b; text-align: right;">$10000.00</td>
+          </tr>
+        
+      </tbody>
+    </table>
+
+    <div class="total-section">
+      <div class="total-pill">
+        <div class="total-label">Total Amount Due</div>
+        <div class="total-amount">$55000.00</div>
+      </div>
+    </div>
+
+    
+    <div class="notes-box">
+      <span class="notes-title">Payment Instructions & Notes</span>
+      Banking Info:<br>Bank: Gravity Bank<br>Account: 12345678<br>Routing: 987654321
+    </div>
+    
+
+    <div class="footer">
+      Thank you for your business! Payment is due within 14 days of the invoice date.<br>
+      <strong>EvansAiSolutions</strong> | Las Vegas, NV | chris@evansaisolutions.com | www.evansaisolutions.com
+    </div>
+  </div>
+</body>
+</html>
+      

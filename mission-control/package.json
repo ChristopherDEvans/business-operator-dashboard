@@ -1,0 +1,30 @@
+{
+  "name": "mission-control",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@pinecone-database/pinecone": "^7.1.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "apify-client": "^2.22.3",
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
+    "geist": "^1.7.0",
+    "lucide-react": "^0.453.0",
+    "next": "15.0.1",
+    "openai": "^4.68.1",
+    "pdf-parse-fork": "^1.2.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}
