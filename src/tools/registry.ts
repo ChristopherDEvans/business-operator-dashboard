@@ -20,7 +20,7 @@ import { supabase } from "../lib/supabase.js";
 // ── MCP Initialization ────────────────────────────────
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const RELATIVE_MCP_CONFIG = path.join(process.cwd(), "mcp_config.json");
-const FALLBACK_MCP_CONFIG = "C:/Users/CEvns/.gemini/antigravity/mcp_config.json";
+const FALLBACK_MCP_CONFIG = "C:/Users/CEvns/.gemini/config/mcp_config.json";
 
 // Prefer: 1. ENV variable, 2. Project root (for Docker), 3. Local fallback
 const MCP_CONFIG_PATH = process.env.MCP_CONFIG_PATH || 

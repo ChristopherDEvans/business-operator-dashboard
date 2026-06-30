@@ -24,7 +24,9 @@ async function scheduleMorningHeartbeat() {
 
   // Fetch current config
   const { data } = await supabase.from('bot_config').select('*');
-  const heartbeatSchedule = data?.find(it => it.key === 'Heartbeat Schedule')?.value || "0 8 * * *";
+  const rawSchedule = data?.find(it => it.key === 'Heartbeat Schedule')?.value || "0 8 * * *";
+  // Strip comments like "(daily 8AM)" to prevent parser crashes
+  const heartbeatSchedule = rawSchedule.split('(')[0].trim();
   const timezone = data?.find(it => it.key === 'Timezone')?.value || "Europe/London";
 
   console.log(`💓 Heartbeat: Scheduling morning brief for [${heartbeatSchedule}] (${timezone})`);
@@ -33,24 +35,26 @@ async function scheduleMorningHeartbeat() {
     morningJob.stop();
   }
 
-  try {
-    morningJob = cron.schedule(heartbeatSchedule, async () => {
-      console.log(`💓 Heartbeat: Firing scheduled brief [${heartbeatSchedule}]`);
-      logActivity("task", "Morning Heartbeat Triggered", "Generating proactive messages for all allowed users.");
+  const jobCallback = async () => {
+    console.log(`💓 Heartbeat: Firing scheduled brief [${heartbeatSchedule}]`);
+    logActivity("task", "Morning Heartbeat Triggered", "Generating proactive messages for all allowed users.");
 
-      for (const userId of config.allowedUserIds) {
-        try {
-          const { text } = await runAgentLoop(
-            userId,
-            "[INTERNAL_SYSTEM_TRIGGER: Morning Accountability Heartbeat. You MUST call the 'daily_briefing' tool right now to generate the content, do not hallucinate the data.]"
-          );
-          await bot.api.sendMessage(userId, text);
-          console.log(`✅ Heartbeat sent to user ${userId}`);
-        } catch (error) {
-          console.error(`❌ Heartbeat failed for user ${userId}:`, error);
-        }
+    for (const userId of config.allowedUserIds) {
+      try {
+        const { text } = await runAgentLoop(
+          userId,
+          "[INTERNAL_SYSTEM_TRIGGER: Morning Accountability Heartbeat. You MUST call the 'daily_briefing' tool right now to generate the content, do not hallucinate the data.]"
+        );
+        await bot.api.sendMessage(userId, text);
+        console.log(`✅ Heartbeat sent to user ${userId}`);
+      } catch (error) {
+        console.error(`❌ Heartbeat failed for user ${userId}:`, error);
       }
-    }, {
+    }
+  };
+
+  try {
+    morningJob = cron.schedule(heartbeatSchedule, jobCallback, {
       timezone: timezone as any
     });
   } catch (err) {
@@ -58,7 +62,13 @@ async function scheduleMorningHeartbeat() {
     // Fallback to default if user enters garbage
     if (heartbeatSchedule !== "0 8 * * *") {
        console.log("⚠️ Falling back to default 8AM schedule.");
-       // Re-call with default
+       try {
+         morningJob = cron.schedule("0 8 * * *", jobCallback, {
+           timezone: timezone as any
+         });
+       } catch (fallbackErr) {
+         console.error("❌ Failed to schedule default heartbeat:", fallbackErr);
+       }
     }
   }
 }
