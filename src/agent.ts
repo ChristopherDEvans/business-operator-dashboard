@@ -88,6 +88,9 @@ async function getDynamicSystemPrompt(): Promise<string> {
 - You run as a 24/7 personal intelligence agent.
 - You have access to a **Three-Tier Memory System** (SQLite, Pinecone, Supabase).
 - Current Mission Control Dashboard: ${config.missionControlUrl}
+
+## 🚫 Voice Response Constraint
+- **Strict Rule**: You must ONLY call the 'speak' tool if the user explicitly requests a voice note, speech, or audio response. If the user sends a standard text message or an internal trigger, you MUST respond in text only and DO NOT call the 'speak' tool.
 `;
 }
 
@@ -233,6 +236,9 @@ export async function runAgentLoop(
     if (choice.toolCalls?.length) {
       history.push({ role: "assistant", content: null, tool_calls: choice.toolCalls } as any);
 
+      let shouldTerminate = false;
+      let spokenText = "";
+
       for (const toolCall of choice.toolCalls) {
         let args = {};
         try { args = JSON.parse(toolCall.function.arguments || "{}"); } catch {}
@@ -240,13 +246,44 @@ export async function runAgentLoop(
         const result = await executeTool(toolCall.function.name, args, userId);
         logActivity("tool", `Tool: ${toolCall.function.name}`, result.substring(0, 100));
 
+        let isFinalVoice = true; // Default to true for backwards compatibility
         try {
           const parsed = JSON.parse(result);
-          if (parsed.voiceFilePath) voiceFiles.push(parsed.voiceFilePath);
+          if (parsed.voiceFilePath) {
+            voiceFiles.push(parsed.voiceFilePath);
+          }
+          if (parsed.hasOwnProperty("final_response")) {
+            isFinalVoice = parsed.final_response;
+          }
         } catch {}
+
+        if (toolCall.function.name === "speak") {
+          shouldTerminate = true;
+          spokenText = (args as any).text || "";
+          console.log("🔊 Voice response generated — ending agent loop.");
+        }
 
         history.push({ role: "tool", tool_call_id: toolCall.id, content: result });
       }
+
+      if (shouldTerminate) {
+        history.push({ role: "assistant", content: spokenText });
+        saveMessage(userId, "assistant", spokenText);
+        logActivity("system", "Assistant Response (Voice)", spokenText);
+
+        // BACKGROUND TASK: Fact Extraction & Compaction
+        (async () => {
+          try {
+            await compactIfNecessary(userId, openai);
+          } catch (e) {
+            console.error("❌ Background compaction failed:", e);
+          }
+        })();
+
+        process.stdout.write(`✅ Success (Spoke to user, ${iterations} iterations)\n`);
+        return { text: spokenText, voiceFiles };
+      }
+
       continue;
     }
 
