@@ -23,6 +23,11 @@ export default function LogsPage() {
       es.onmessage = (event) => {
         try {
           const raw = JSON.parse(event.data);
+          if (raw.type === 'done') {
+            es.close();
+            setIsActive(false);
+            return;
+          }
           const newLog: LogEntry = {
             ...raw,
             time: new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })

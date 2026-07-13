@@ -1,4 +1,5 @@
 import fs from "fs";
+import { GrammyError } from "grammy";
 import { config } from "./config.js";
 import { bot } from "./bot.js";
 import { initializeTools } from "./tools/registry.js";
@@ -21,25 +22,28 @@ async function runSafetyChecks() {
     console.log("✓ Supabase configuration present.");
   }
 
-  // 3. Validate template vault/generated sites paths
-  if (!config.templateVaultPath) {
-    console.warn("⚠️ TEMPLATE_VAULT_PATH is not configured. Website Factory will run in manual mode.");
-  } else if (!fs.existsSync(config.templateVaultPath)) {
-    console.warn(`⚠️ TEMPLATE_VAULT_PATH folder does not exist: "${config.templateVaultPath}". Website Factory will run in manual mode.`);
-  } else {
-    console.log("✓ Template vault path verified.");
-  }
+  const isRailway = !!process.env.RAILWAY_ENVIRONMENT || !!process.env.RAILWAY_STATIC_URL;
 
-  if (!config.generatedSitesPath) {
-    console.warn("⚠️ GENERATED_SITES_PATH is not configured. Website Factory will run in manual mode.");
-  } else if (!fs.existsSync(config.generatedSitesPath)) {
-    console.warn(`⚠️ GENERATED_SITES_PATH folder does not exist: "${config.generatedSitesPath}". Output folders will be created dynamically.`);
-  } else {
-    console.log("✓ Generated sites path verified.");
+  // 3. Validate template vault/generated sites paths
+  if (!isRailway) {
+    if (!config.templateVaultPath) {
+      console.log("⚠️ TEMPLATE_VAULT_PATH is not configured. Website Factory will run in manual mode.");
+    } else if (!fs.existsSync(config.templateVaultPath)) {
+      console.log(`⚠️ TEMPLATE_VAULT_PATH folder does not exist: "${config.templateVaultPath}". Website Factory will run in manual mode.`);
+    } else {
+      console.log("✓ Template vault path verified.");
+    }
+
+    if (!config.generatedSitesPath) {
+      console.log("⚠️ GENERATED_SITES_PATH is not configured. Website Factory will run in manual mode.");
+    } else if (!fs.existsSync(config.generatedSitesPath)) {
+      console.log(`⚠️ GENERATED_SITES_PATH folder does not exist: "${config.generatedSitesPath}". Output folders will be created dynamically.`);
+    } else {
+      console.log("✓ Generated sites path verified.");
+    }
   }
 
   // 4. Validate Railway env readiness
-  const isRailway = !!process.env.RAILWAY_ENVIRONMENT || !!process.env.RAILWAY_STATIC_URL;
   if (isRailway) {
     console.log("✓ Production environment (Railway) detected.");
     const requiredProd = ["TELEGRAM_BOT_TOKEN", "OPENROUTER_API_KEY", "ALLOWED_USER_IDS", "SUPABASE_URL"];
@@ -118,6 +122,13 @@ async function main() {
       console.log(`✅ Bot online as @${botInfo.username}`);
       console.log(`   Send a message on Telegram to get started.\n`);
     },
+  }).catch((err) => {
+    if (err instanceof GrammyError && err.error_code === 409) {
+      console.error("❌ Telegram Bot 409 Conflict: Another instance is running (getUpdates terminated).");
+      console.error("   Exiting process cleanly with code 1 to let the orchestrator restart us when the old instance drains.");
+      process.exit(1);
+    }
+    console.error("❌ Critical error in bot polling loop:", err);
   });
 }
 

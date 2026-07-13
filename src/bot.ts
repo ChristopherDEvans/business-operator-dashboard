@@ -1,4 +1,4 @@
-import { Bot, InputFile } from "grammy";
+import { Bot, InputFile, GrammyError, HttpError } from "grammy";
 import { config } from "./config.js";
 import { runAgentLoop } from "./agent.js";
 import { transcribeVoice } from "./voice.js";
@@ -9,6 +9,17 @@ import { usageTracker } from "./lib/usage.js";
 
 // ── Create bot ─────────────────────────────────────────
 export const bot = new Bot(config.telegramBotToken);
+
+// ── Global Error Handler (prevents crashes & handles 409 conflict) ────
+bot.catch((err) => {
+  const e = err.error;
+  if (e instanceof GrammyError && e.error_code === 409) {
+    console.error("❌ Telegram Bot 409 Conflict: Another instance is running (getUpdates terminated).");
+    console.error("   Exiting process cleanly with code 1 to let the orchestrator restart us when the old instance drains.");
+    process.exit(1);
+  }
+  console.error("❌ Error in bot middleware / polling:", e);
+});
 
 // ── Security: User ID whitelist ────────────────────────
 bot.use(async (ctx, next) => {

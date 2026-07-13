@@ -22,10 +22,24 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const RELATIVE_MCP_CONFIG = path.join(process.cwd(), "mcp_config.json");
 const FALLBACK_MCP_CONFIG = "C:/Users/CEvns/.gemini/config/mcp_config.json";
 
-// Prefer: 1. ENV variable, 2. Project root (for Docker), 3. Local fallback
-const MCP_CONFIG_PATH = process.env.MCP_CONFIG_PATH || 
-                       (fs.existsSync(RELATIVE_MCP_CONFIG) ? RELATIVE_MCP_CONFIG : FALLBACK_MCP_CONFIG);
+// Resolve robust MCP config path:
+let mcpConfigPath = "";
+if (process.env.MCP_CONFIG_PATH) {
+  if (fs.existsSync(process.env.MCP_CONFIG_PATH)) {
+    mcpConfigPath = process.env.MCP_CONFIG_PATH;
+  } else {
+    // Environment config doesn't exist (e.g. Windows path on Linux container)
+    if (fs.existsSync(RELATIVE_MCP_CONFIG)) {
+      mcpConfigPath = RELATIVE_MCP_CONFIG;
+    } else {
+      mcpConfigPath = FALLBACK_MCP_CONFIG;
+    }
+  }
+} else {
+  mcpConfigPath = fs.existsSync(RELATIVE_MCP_CONFIG) ? RELATIVE_MCP_CONFIG : FALLBACK_MCP_CONFIG;
+}
 
+const MCP_CONFIG_PATH = mcpConfigPath;
 const mcpClient = new MultiMcpClient(MCP_CONFIG_PATH);
 
 // ── Internal Tool Registry ────────────────────────────

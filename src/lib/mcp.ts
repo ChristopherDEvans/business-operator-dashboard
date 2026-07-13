@@ -28,7 +28,7 @@ export class MultiMcpClient {
 
   async initialize() {
     if (!fs.existsSync(this.configPath)) {
-      console.log(`⚠️ MCP Config not active: ${this.configPath}. Operating in local tools mode.`);
+      console.log("ℹ️ No MCP configuration file found. Operating in local tools mode.");
       return;
     }
 

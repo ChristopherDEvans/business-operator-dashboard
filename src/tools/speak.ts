@@ -15,6 +15,10 @@ export const definition = {
           type: "string",
           description: "The text to convert to speech.",
         },
+        final_response: {
+          type: "boolean",
+          description: "Whether this is the final response to the user. Defaults to true. Set to false if you need to perform more actions/calls after speaking.",
+        },
       },
       required: ["text"],
     },
@@ -26,7 +30,7 @@ export const definition = {
  * Generates an audio file and returns the path.
  * The bot layer will detect this path and send it as a voice message.
  */
-export async function execute(input: { text: string }): Promise<string> {
+export async function execute(input: { text: string; final_response?: boolean }): Promise<string> {
   if (!config.ttsEnabled) {
     return JSON.stringify({
       error: "Text-to-speech is not configured (missing ElevenLabs API key).",
@@ -39,6 +43,7 @@ export async function execute(input: { text: string }): Promise<string> {
       success: true,
       message: "Voice message generated and will be sent.",
       voiceFilePath: filePath,
+      final_response: input.final_response !== false,
     });
   } catch (error: any) {
     console.error("❌ TTS error:", error);
@@ -47,3 +52,4 @@ export async function execute(input: { text: string }): Promise<string> {
     });
   }
 }
+

@@ -11,10 +11,14 @@ export async function GET(req: NextRequest) {
       console.log('📡 [Logs API] Starting log stream for Gravity Claw service...');
       
       // Execute railway logs. Newer versions require --lines before -s.
-      // Use a single command string for Windows shell robustness.
+      // Use a single command string for Windows shell robustness and forward env variables.
       const railway = spawn('railway logs --lines 50 -s "Gravity Claw"', {
         cwd: process.cwd(),
         shell: true,
+        env: {
+          ...process.env,
+          RAILWAY_TOKEN: process.env.RAILWAY_TOKEN
+        }
       });
 
       railway.stdout.on('data', (data) => {
@@ -37,6 +41,15 @@ export async function GET(req: NextRequest) {
 
       railway.on('close', (code) => {
         console.log(`📡 [Logs API] Log stream closed with code ${code}`);
+        try {
+          if (code === 0) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done', text: 'Stream complete.' })}\n\n`));
+          } else {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', text: `Railway CLI exited with code ${code}` })}\n\n`));
+          }
+        } catch (e) {
+          // ignore stream already closed errors
+        }
         controller.close();
       });
 
